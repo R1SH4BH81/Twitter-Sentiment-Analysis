@@ -37,4 +37,4 @@ for i in range(len(scores)):
     
     l = labels[i]
     s = scores[i]
-    print(l,s)
+    print(f"{l}: {s:.3f}")
