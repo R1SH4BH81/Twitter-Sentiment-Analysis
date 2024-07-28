@@ -77,8 +77,24 @@ def index():
 
 @app.route('/results', methods=['GET'])
 def results():
+    page = request.args.get('page', 1, type=int)
+    per_page = 25
     tweet_data, sentiment_counts, results_file_name = process_csv('tweets.csv')
-    return render_template('results.html', tweet_data=tweet_data, sentiment_counts=sentiment_counts, results_file_name=results_file_name)
+    
+    total_tweets = len(tweet_data)
+    start = (page - 1) * per_page
+    end = start + per_page
+
+    paginated_tweet_data = tweet_data[start:end]
+    
+    return render_template(
+        'results.html',
+        tweet_data=paginated_tweet_data,
+        sentiment_counts=sentiment_counts,
+        results_file_name=results_file_name,
+        current_page=page,
+        total_pages=(total_tweets // per_page) + (1 if total_tweets % per_page != 0 else 0)
+    )
 
 if __name__ == '__main__':
     app.run(debug=True)

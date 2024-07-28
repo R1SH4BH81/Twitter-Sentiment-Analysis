@@ -33,19 +33,37 @@
               <td class="py-2 px-4 border-b border-gray-200">
                 {{ data.tweet }}
               </td>
-              <td class="py-2 px-4 border-b border-gray-200">
+              <td class="py-2 px-4 border-b border-gray-200 sentiment-cell-negative">
                 {{ data.sentiment['Negative'] | round(3) }}
               </td>
-              <td class="py-2 px-4 border-b border-gray-200">
+              <td class="py-2 px-4 border-b border-gray-200 sentiment-cell-neutral">
                 {{ data.sentiment['Neutral'] | round(3) }}
               </td>
-              <td class="py-2 px-4 border-b border-gray-200">
+              <td class="py-2 px-4 border-b border-gray-200 sentiment-cell-positive">
                 {{ data.sentiment['Positive'] | round(3) }}
               </td>
             </tr>
             {% endfor %}
           </tbody>
         </table>
+      </div>
+
+      <div class="flex justify-between mt-4">
+        <button
+          class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded-lg"
+          onclick="changePage({{ current_page - 1 }})"
+          {% if current_page == 1 %} disabled {% endif %}
+        >
+          Previous
+        </button>
+        <span class="text-gray-700">Page {{ current_page }} of {{ total_pages }}</span>
+        <button
+          class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded-lg"
+          onclick="changePage({{ current_page + 1 }})"
+          {% if current_page == total_pages %} disabled {% endif %}
+        >
+          Next
+        </button>
       </div>
 
       <div class="flex justify-between mt-6">
@@ -78,6 +96,11 @@
     </div>
 
     <script>
+      // Handle page change
+      function changePage(page) {
+        window.location.href = `?page=${page}`;
+      }
+
       // Chart data
       const sentimentCounts = {
         Negative: {{ sentiment_counts['Negative'] }},
@@ -113,6 +136,34 @@
           },
         });
       };
+
+      // Highlight highest scoring field for each row
+      function highlightHighestSentiment() {
+        const rows = document.querySelectorAll('tbody tr');
+
+        rows.forEach(row => {
+          const cells = row.querySelectorAll('.sentiment-cell-negative, .sentiment-cell-neutral, .sentiment-cell-positive');
+          let highestCell = null;
+          let highestValue = -Infinity;
+
+          cells.forEach(cell => {
+            const value = parseFloat(cell.textContent);
+            if (value > highestValue) {
+              highestValue = value;
+              highestCell = cell;
+            }
+          });
+
+          if (highestCell) {
+            highestCell.style.color = 'blue';
+            highestCell.style.fontWeight = 'bold';
+          }
+          
+        });
+      }
+
+      // Call function to highlight the highest scoring field
+      highlightHighestSentiment();
     </script>
   </body>
 </html>
